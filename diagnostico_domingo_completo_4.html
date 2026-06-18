@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico Domingo — Helppi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+#pw-screen{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;}
+.pw-box{display:flex;flex-direction:column;align-items:center;gap:20px;padding:48px;border:1px solid #e2e2ea;border-radius:16px;border-top:4px solid #e8001c;max-width:360px;width:100%;}
+.pw-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#1a1a2e;}
+.pw-logo span{color:#e8001c;}
+.pw-label{font-size:13px;color:#6b6b80;text-align:center;}
+.pw-input{width:100%;padding:12px 16px;border:1px solid #e2e2ea;border-radius:8px;font-size:14px;outline:none;font-family:'DM Sans',sans-serif;}
+.pw-input:focus{border-color:#e8001c;}
+.pw-btn{width:100%;padding:12px;background:#e8001c;color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;}
+.pw-btn:hover{background:#c5001a;}
+.pw-error{font-size:12px;color:#e8001c;display:none;}
+:root{--bg:#fff;--surface:#f7f7f9;--surface2:#efeff3;--border:#e2e2ea;--red:#e8001c;--purple:#6b3fa0;--green:#0a8a5c;--yellow:#d97706;--text:#1a1a2e;--muted:#6b6b80;--mono:'DM Mono',monospace;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;font-size:14px;line-height:1.7;}
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;}
+.nav-item{padding:14px 18px;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;}
+.nav-item:hover,.nav-item.active{color:var(--red);border-bottom-color:var(--red);}
+/* HEADER */
+header{border-top:4px solid var(--red);padding:56px 60px 44px;position:relative;overflow:hidden;}
+header::after{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(232,0,28,.05) 0%,transparent 70%);pointer-events:none;}
+.eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,46px);font-weight:800;color:var(--text);line-height:1.1;max-width:680px;margin-bottom:18px;}
+h1 span{color:var(--red);}
+.header-sub{color:var(--muted);max-width:560px;font-size:13px;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--text);line-height:1;}
+.kpi-val.red{color:var(--red);}
+.kpi-label{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+/* SECTION */
+.sec-wrap{max-width:1160px;margin:0 auto;padding:60px 60px 0;}
+.sec-wrap:last-child{padding-bottom:80px;}
+.sec-header{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.sec-num{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);}
+h2{font-family:'Syne',sans-serif;font-size:21px;font-weight:700;color:var(--text);}
+h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin:26px 0 10px;}
+/* GRID */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;}
+.card-label{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.card-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:5px;}
+.card-val.red{color:var(--red);}.card-val.green{color:var(--green);}.card-val.purple{color:var(--purple);}.card-val.yellow{color:var(--yellow);}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+/* INSIGHT */
+.ins{background:var(--surface);border-left:3px solid var(--red);border-radius:0 12px 12px 0;padding:18px 22px;margin:18px 0;}
+.ins.green{border-color:var(--green);}.ins.purple{border-color:var(--purple);}.ins.yellow{border-color:var(--yellow);}
+.ins-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:5px;}
+.ins p{font-size:13px;color:var(--muted);line-height:1.6;}
+.ins p strong{color:var(--text);font-weight:500;}
+/* TABLE */
+.tbl{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:14px 0;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{padding:11px 14px;text-align:left;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface);}
+.n{font-family:var(--mono);font-weight:500;font-size:12px;}
+.bdg{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;}
+.bdg-r{background:rgba(232,0,28,.1);color:var(--red);}
+.bdg-g{background:rgba(10,138,92,.1);color:var(--green);}
+.bdg-y{background:rgba(217,119,6,.1);color:var(--yellow);}
+.bdg-p{background:rgba(107,63,160,.1);color:var(--purple);}
+/* BAR */
+.bars{display:flex;flex-direction:column;gap:9px;margin:14px 0;}
+.bar-row{display:flex;align-items:center;gap:12px;}
+.bar-lbl{width:80px;font-size:12px;color:var(--muted);flex-shrink:0;text-align:right;}
+.bar-track{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;}
+.bar-val{width:100px;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);}
+/* CLUSTER GRID */
+.cl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0;}
+.cl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.cl-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:12px;}
+.pr-bars{display:flex;flex-direction:column;gap:7px;}
+.pr-row{display:flex;align-items:center;gap:8px;font-size:11px;}
+.pr-key{width:78px;color:var(--muted);flex-shrink:0;}
+.pr-track{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.pr-fill{height:100%;border-radius:3px;}
+.pr-val{width:36px;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text);text-align:right;}
+.c-g{background:var(--green);}.c-b{background:#4f46e5;}.c-y{background:var(--yellow);}.c-r{background:var(--red);}
+/* FILL DECOMP */
+.decomp-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin:20px 0;}
+.decomp-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;}
+.decomp-col{display:flex;flex-direction:column;gap:6px;}
+.decomp-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.decomp-val{font-family:var(--mono);font-size:22px;font-weight:600;}
+.decomp-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+.decomp-arrow{display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--border);padding-top:20px;}
+/* CONCEPT */
+.concept{background:linear-gradient(135deg,rgba(107,63,160,.04),rgba(232,0,28,.03));border:1px solid var(--border);border-radius:14px;padding:28px;margin:20px 0;}
+.concept-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.concept-ex{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;}
+.concept-ex-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:8px;}
+.ctbl{width:100%;font-size:12px;border-collapse:collapse;}
+.ctbl th{padding:5px 9px;background:var(--surface2);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;}
+.ctbl td{padding:5px 9px;border-bottom:1px solid var(--border);font-family:var(--mono);}
+.ctbl tr:last-child td{border-bottom:none;}
+.hl{background:rgba(107,63,160,.08);color:var(--purple);font-weight:500;}
+/* FILTER TAG */
+.ftag{display:inline-flex;align-items:center;gap:5px;background:rgba(107,63,160,.07);border:1px solid rgba(107,63,160,.18);border-radius:20px;padding:3px 11px;font-size:11px;color:var(--purple);font-weight:500;margin:3px 3px 3px 0;}
+/* PERIOD */
+.ptags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.ptag{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:500;}
+.p1{background:rgba(107,63,160,.08);color:var(--purple);}
+.p2{background:rgba(217,119,6,.08);color:var(--yellow);}
+.p3{background:rgba(232,0,28,.08);color:var(--red);}
+/* TIMELINE */
+.tl{position:relative;margin:22px 0;}
+.tl::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:var(--border);}
+.tl-item{display:flex;gap:22px;margin-bottom:22px;}
+.tl-dot{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--red);flex-shrink:0;position:relative;z-index:1;}
+.tl-dot.on{border-color:var(--red);background:rgba(232,0,28,.07);}
+.tl-content{padding-top:8px;}
+.tl-period{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:3px;}
+.tl-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px;}
+.tl-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.tl-desc strong{color:var(--text);}
+/* CONCLUSION */
+.concl{background:linear-gradient(135deg,rgba(232,0,28,.04),rgba(107,63,160,.04));border:1px solid var(--border);border-radius:14px;padding:36px;margin-top:56px;}
+.rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+.rec-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;}
+.rec-p{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.rec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:7px;}
+.rec-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+/* SIM */
+.sim-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin:20px 0;}
+.sim-top{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start;}
+.sim-sliders{display:flex;flex-direction:column;gap:18px;}
+.sl-group{display:flex;flex-direction:column;gap:7px;}
+.sl-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.sl-row{display:flex;align-items:center;gap:10px;}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--red);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(232,0,28,.3);}
+.sl-val{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text);width:50px;text-align:right;}
+.sl-range{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);}
+.be-box{margin-top:10px;background:rgba(107,63,160,.06);border:1px solid rgba(107,63,160,.15);border-radius:10px;padding:12px 14px;}
+.be-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple);margin-bottom:3px;}
+.be-val{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--purple);}
+.be-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.sim-results{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sr-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.sr-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.sr-val{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--text);}
+.sr-val.pos{color:var(--green);}.sr-val.neg{color:var(--red);}.sr-val.neu{color:var(--purple);}
+canvas{border:1px solid var(--border);border-radius:10px;background:#fff;width:100%;margin-top:18px;}
+.ptbl{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);}
+.ptbl th{padding:7px 9px;background:var(--surface2);border:1px solid var(--border);font-size:10px;font-weight:500;letter-spacing:1px;color:var(--muted);text-align:right;}
+.ptbl th:first-child{text-align:left;}
+.ptbl td{padding:6px 9px;border:1px solid var(--border);text-align:right;}
+.ptbl td:first-child{text-align:left;font-weight:500;}
+.cp{background:rgba(10,138,92,.08);color:var(--green);}
+.cn{background:rgba(232,0,28,.05);color:var(--red);}
+.cz{background:rgba(107,63,160,.08);color:var(--purple);font-weight:600;}
+.ch{outline:2px solid var(--red);outline-offset:-2px;}
+.divider{height:1px;background:var(--border);margin:36px 0;}
+@media(max-width:900px){
+  header,.sec-wrap{padding-left:20px;padding-right:20px;}
+  .kpis,.g2,.g3,.g4,.cl-grid,.rec-grid,.concept-cols,.sim-top,.sim-results,.decomp-cols{grid-template-columns:1fr;}
+  nav{padding:0 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="pw-screen">
+  <div class="pw-box">
+    <div class="pw-logo">Help<span>pi</span></div>
+    <div class="pw-label">Este documento é confidencial.<br>Insira a senha para continuar.</div>
+    <input class="pw-input" type="password" id="pw-input" placeholder="Senha" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">ENTRAR</button>
+    <div class="pw-error" id="pw-error">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<script>
+function checkPw(){
+  const v=document.getElementById('pw-input').value;
+  const h=Array.from(v).reduce((a,c)=>Math.imul(31,a)+c.charCodeAt(0)|0,0);
+  if(h===1312707320){
+    document.getElementById('pw-screen').style.display='none';
+    sessionStorage.setItem('auth','1');
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+if(sessionStorage.getItem('auth')==='1'){
+  document.getElementById('pw-screen').style.display='none';
+}
+</script>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-item active" onclick="goTo('s0')">00 Fill Rate</div>
+  <div class="nav-item" onclick="goTo('s1')">01 Diagnóstico</div>
+  <div class="nav-item" onclick="goTo('s2')">02 Evolução</div>
+  <div class="nav-item" onclick="goTo('s3')">03 Helppers</div>
+  <div class="nav-item" onclick="goTo('s4')">04 Síntese</div>
+  <div class="nav-item" onclick="goTo('s5')">05 Simulador</div>
+</nav>
+
+<!-- HEADER -->
+<header>
+  <div class="eyebrow">Helppi · Pricing & BizOps · Jun/2026</div>
+  <h1>Por que o <span>Fill Rate</span> do Domingo é estruturalmente menor?</h1>
+  <p class="header-sub">Diagnóstico completo da lacuna de oferta aos domingos. Todos os indicadores usam <strong>fill puro</strong> (cancelamentos do cliente excluídos do denominador). Base: 2025 em diante, exceto análise histórica.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-val red">8.5pp</div><div class="kpi-label">Gap fill puro domingo vs dia útil</div></div>
+    <div class="kpi"><div class="kpi-val red">43.259h</div><div class="kpi-label">Horas perdidas/ano (2025+)</div></div>
+    <div class="kpi"><div class="kpi-val red">R$1,18M</div><div class="kpi-label">GBV não realizado estimado</div></div>
+    <div class="kpi"><div class="kpi-val">748k</div><div class="kpi-label">Atendimentos analisados</div></div>
+  </div>
+</header>
+
+<!-- ══ S0: DOIS TIPOS DE FILL ══ -->
+<div class="sec-wrap" id="s0">
+  <div class="sec-header"><span class="sec-num">00</span><h2>Por que usamos Fill Puro?</h2></div>
+  <p style="font-size:13px;color:var(--muted);max-width:700px;margin-bottom:24px">O fill rate pode ser calculado de duas formas. A distinção importa porque <strong style="color:var(--text)">cancelamento do cliente não é problema de oferta</strong> — incluí-lo no denominador mascara o real gap de helpper disponível.</p>
+
+  <div class="decomp-box">
+    <div class="decomp-cols">
+      <div class="decomp-col">
+        <div class="decomp-label">Fill Normal</div>
+        <div class="decomp-val" style="color:var(--yellow)">72.2%</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin:6px 0">h_at / (final + nao_atend + cancel + interr)</div>
+        <div class="decomp-desc">Inclui cancelamentos do cliente no denominador. Penaliza o fill mesmo quando o helpper não tinha oferta disponível para aceitar.</div>
+      </div>
+      <div class="decomp-arrow">→</div>
+      <div class="decomp-col">
+        <div class="decomp-label" style="color:var(--green)">Fill Puro ✓</div>
+        <div class="decomp-val" style="color:var(--green)">72.2% → 80.6%</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin:6px 0">h_at / (final + nao_atend + interr)</div>
+        <div class="decomp-desc">Exclui cancelamentos. Mede apenas o que estava genuinamente disponível para o helpper aceitar. <strong style="color:var(--text)">É esta métrica que usamos em todo o documento.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Decomposição do Gap de Domingo — Últimos 6 meses (dez/25–mai/26)</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Dia</th><th>% Finalizado</th><th>% Não Atendido</th><th>% Cancelado</th><th>Fill Normal</th><th>Fill Puro</th><th>Δ (efeito cancel.)</th></tr></thead>
+      <tbody>
+        <tr><td>Segunda</td><td class="n">70.8%</td><td class="n">20.1%</td><td class="n">9.1%</td><td class="n">70.0%</td><td class="n">77.3%</td><td><span class="bdg bdg-y">+7.3pp</span></td></tr>
+        <tr><td>Terça</td><td class="n">74.2%</td><td class="n">16.8%</td><td class="n">8.9%</td><td class="n">73.6%</td><td class="n">81.1%</td><td><span class="bdg bdg-y">+7.5pp</span></td></tr>
+        <tr><td>Quarta</td><td class="n">74.0%</td><td class="n">16.7%</td><td class="n">9.3%</td><td class="n">73.4%</td><td class="n">81.1%</td><td><span class="bdg bdg-y">+7.7pp</span></td></tr>
+        <tr><td>Quinta</td><td class="n">75.3%</td><td class="n">14.4%</td><td class="n">10.2%</td><td class="n">74.6%</td><td class="n">83.3%</td><td><span class="bdg bdg-y">+8.6pp</span></td></tr>
+        <tr><td>Sexta</td><td class="n">74.5%</td><td class="n">17.5%</td><td class="n">8.0%</td><td class="n">73.6%</td><td class="n">80.4%</td><td><span class="bdg bdg-y">+6.7pp</span></td></tr>
+        <tr><td>Sábado</td><td class="n">69.1%</td><td class="n">22.0%</td><td class="n">8.8%</td><td class="n">68.5%</td><td class="n">75.4%</td><td><span class="bdg bdg-y">+6.9pp</span></td></tr>
+        <tr style="background:rgba(232,0,28,.03)"><td><strong>Domingo</strong></td><td class="n">63.8%</td><td class="n" style="color:var(--red)"><strong>24.0%</strong></td><td class="n" style="color:var(--red)"><strong>12.2%</strong></td><td class="n" style="color:var(--red)">62.9%</td><td class="n" style="color:var(--yellow)"><strong>72.2%</strong></td><td><span class="bdg bdg-r">+9.2pp</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2" style="margin-top:16px">
+    <div class="ins" style="margin:0">
+      <div class="ins-title">Cancelamento é maior no domingo (+3pp vs dias úteis)</div>
+      <p>12.2% vs ~9% nos dias úteis. Parte desse cancelamento pode ser cliente que não abre no domingo mas mantém cadastro ativo — esse denominador inflado piora artificialmente o fill. Cidades como Franca e Marília têm fill_dom = 0% com centenas de horas demandadas: provável erro de cadastro.</p>
+    </div>
+    <div class="ins red" style="margin:0">
+      <div class="ins-title">Não atendido é a maior diferença (+7pp vs dias úteis)</div>
+      <p>24.0% vs ~17% nos dias úteis. Este é o gap real de oferta — ofertas disponíveis que nenhum helpper aceitou. <strong>É aqui que a alavanca operacional age.</strong> O fill puro foca exatamente nessa métrica.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S1: DIAGNÓSTICO ══ -->
+<div class="sec-wrap" id="s1">
+  <div class="sec-header"><span class="sec-num">01</span><h2>Diagnóstico Geral — Fill Puro por Turno, Dia e Cluster</h2></div>
+
+  <h3>Fill Puro por Turno × Dia da Semana — Últimos 6 meses</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Turno</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th><th>Dom</th><th>Δ Dom vs Seg-Sex</th></tr></thead>
+      <tbody>
+        <tr><td>Manhã + Tarde</td><td class="n">77.6%</td><td class="n">81.3%</td><td class="n">81.3%</td><td class="n">83.5%</td><td class="n">80.6%</td><td class="n">75.5%</td><td class="n" style="color:var(--red)">72.7%</td><td><span class="bdg bdg-r">-8.1pp</span></td></tr>
+        <tr><td>Noite</td><td class="n">59.2%</td><td class="n">67.0%</td><td class="n">66.0%</td><td class="n">68.6%</td><td class="n">62.8%</td><td class="n">71.3%</td><td class="n" style="color:var(--red)">54.0%</td><td><span class="bdg bdg-r">-10.4pp</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ins">
+    <div class="ins-title">Sistêmico — todos os turnos caem no domingo</div>
+    <p>Manhã+Tarde cai <strong>8.1pp</strong> e Noite <strong>10.4pp</strong>. Dentro do domingo, os horários de 17h (-25pp) e 19-21h (-23 a -31pp) são os mais críticos — helpper aceita mas desiste conforme o dia avança.</p>
+  </div>
+
+  <h3>Fill Puro + CSP/hora por Dia da Semana — Últimos 6 meses</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Dia</th><th>Fill Puro</th><th>CSP/hora</th><th>H. Demandadas/dia</th><th>H. Atendidas/dia</th></tr></thead>
+      <tbody>
+        <tr><td>Segunda</td><td class="n">77.3%</td><td class="n">R$14,08</td><td class="n">12.140</td><td class="n">9.385</td></tr>
+        <tr><td>Terça</td><td class="n">81.1%</td><td class="n">R$14,11</td><td class="n">12.231</td><td class="n">9.922</td></tr>
+        <tr><td>Quarta</td><td class="n">81.1%</td><td class="n">R$14,15</td><td class="n">12.033</td><td class="n">9.764</td></tr>
+        <tr><td>Quinta</td><td class="n">83.3%</td><td class="n">R$14,02</td><td class="n">11.473</td><td class="n">9.557</td></tr>
+        <tr><td>Sexta</td><td class="n">80.4%</td><td class="n">R$14,21</td><td class="n">13.064</td><td class="n">10.500</td></tr>
+        <tr><td>Sábado</td><td class="n">75.4%</td><td class="n">R$14,48</td><td class="n">13.416</td><td class="n">10.122</td></tr>
+        <tr style="background:rgba(232,0,28,.03)"><td><strong>Domingo</strong></td><td class="n" style="color:var(--red)"><strong>72.2%</strong></td><td class="n" style="color:var(--green)"><strong>R$16,78</strong></td><td class="n">11.278</td><td class="n">8.142</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ins green">
+    <div class="ins-title">Domingo tem o maior CSP/hora (+19% vs dia útil) e o menor fill puro</div>
+    <p>R$16,78/hora no domingo vs ~R$14,11 nos dias úteis. Prêmio real de 19%. Mesmo assim o fill puro é <strong>8.4pp menor</strong>. O adicional já opera — mas não converte o pool disponível.</p>
+  </div>
+
+  <h3>Fill Puro por Cluster × Dia da Semana</h3>
+  <div class="tbl">
+    <table>
+      <thead>
+        <tr><th rowspan="2">Cluster</th><th colspan="3" style="text-align:center;border-left:1px solid var(--border)">Fill Puro</th><th colspan="3" style="text-align:center;border-left:1px solid var(--border)">CSP/hora</th></tr>
+        <tr><th style="border-left:1px solid var(--border)">Seg-Sex</th><th>Sáb</th><th>Dom</th><th style="border-left:1px solid var(--border)">Seg-Sex</th><th>Sáb</th><th>Dom</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Nordeste/Norte/CO</td><td class="n">84.0%</td><td class="n">80.8%</td><td class="n" style="color:var(--green)">83.2%</td><td class="n">R$14,04</td><td class="n">R$14,29</td><td class="n">R$16,73</td></tr>
+        <tr><td>RJ</td><td class="n">87.7%</td><td class="n">87.3%</td><td class="n" style="color:var(--green)">83.3%</td><td class="n">R$14,02</td><td class="n">R$14,25</td><td class="n">R$16,25</td></tr>
+        <tr><td>SP - Capital</td><td class="n">82.1%</td><td class="n">74.9%</td><td class="n" style="color:var(--yellow)">72.0%</td><td class="n">R$14,10</td><td class="n">R$14,52</td><td class="n">R$16,78</td></tr>
+        <tr><td>SP - Interior</td><td class="n">76.0%</td><td class="n">71.9%</td><td class="n" style="color:var(--red)">68.4%</td><td class="n">R$14,18</td><td class="n">R$14,56</td><td class="n">R$16,98</td></tr>
+        <tr style="background:rgba(232,0,28,.03)"><td><strong>Sudeste (MG/ES)</strong></td><td class="n">83.0%</td><td class="n">79.2%</td><td class="n" style="color:var(--red)"><strong>67.3%</strong></td><td class="n">R$13,96</td><td class="n">R$14,24</td><td class="n">R$16,72</td></tr>
+        <tr><td>Sul</td><td class="n">76.4%</td><td class="n">70.4%</td><td class="n" style="color:var(--red)">68.5%</td><td class="n">R$14,33</td><td class="n">R$14,65</td><td class="n">R$17,03</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ins purple">
+    <div class="ins-title">Nordeste/CO e RJ acima de 83% — SP, Sudeste e Sul concentram o problema</div>
+    <p>Nordeste/CO é o único cluster onde domingo (83.2%) supera sábado (80.8%). Sudeste tem o maior prêmio de CSP no domingo (+19.7%) e o pior fill (67.3%) — o pool existe mas não converte. <strong>RJ é o candidato natural a grupo controle</strong> em experimentos: saudável e estável.</p>
+  </div>
+</div>
+
+<!-- ══ S2: EVOLUÇÃO HISTÓRICA ══ -->
+<div class="sec-wrap" id="s2">
+  <div class="sec-header"><span class="sec-num">02</span><h2>Evolução Histórica — O que mudou com o adicional?</h2></div>
+
+  <div class="concept">
+    <h3 style="margin-top:0;margin-bottom:14px">📐 Como ler: Ratio e Base 100</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Para comparar domingo com outros dias ao longo do tempo eliminando o efeito de crescimento geral do negócio, usamos dois conceitos:</p>
+    <div class="concept-cols">
+      <div class="concept-ex">
+        <div class="concept-ex-title">Conceito 1 — Ratio (Domingo ÷ Média Seg-Sex)</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Divide o indicador de domingo pelo mesmo indicador da média seg-sex. Ratio = 1.0 = igualdade. &gt;1.0 = domingo maior. &lt;1.0 = domingo menor.</p>
+        <table class="ctbl">
+          <thead><tr><th>Mês</th><th>Fill dom</th><th>Fill útil</th><th>Ratio</th></tr></thead>
+          <tbody>
+            <tr><td>Jan</td><td>70%</td><td>80%</td><td>0.875</td></tr>
+            <tr><td>Fev</td><td>75%</td><td>80%</td><td>0.938</td></tr>
+            <tr><td>Mar</td><td>80%</td><td>80%</td><td class="hl">1.000</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:11px;color:var(--muted);margin-top:7px">Em março o fill de domingo igualou o dos dias úteis → ratio = 1.0</p>
+      </div>
+      <div class="concept-ex">
+        <div class="concept-ex-title">Conceito 2 — Base 100 (normalização por período)</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Define o ratio médio do período de referência como 100. Períodos seguintes mostram quanto o ratio cresceu ou caiu em relação a esse ponto.</p>
+        <table class="ctbl">
+          <thead><tr><th>Período</th><th>Ratio fill</th><th>Base 100</th></tr></thead>
+          <tbody>
+            <tr><td>Pré (ref.)</td><td>0.967</td><td class="hl">100.0</td></tr>
+            <tr><td>Moderado</td><td>0.845</td><td>87.4</td></tr>
+            <tr><td>Agressivo</td><td>0.910</td><td>94.2</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:11px;color:var(--muted);margin-top:7px">Base 87.4 = ratio de fill piorou 12.6% vs período de referência</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Filtros aplicados</h3>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Para eliminar ruído de mix, a análise histórica isola um produto controlado:</p>
+  <div style="margin-bottom:20px">
+    <span class="ftag">Atividade: Picking / Separação</span>
+    <span class="ftag">Duração: 6 horas</span>
+    <span class="ftag">Turno: Manhã + Tarde (agrupados)</span>
+    <span class="ftag">Mínimo: 10 atend. de domingo/mês</span>
+    <span class="ftag">Fill: denominador puro</span>
+  </div>
+
+  <h3>Definição dos Períodos</h3>
+  <div class="ptags">
+    <span class="ptag p1">Pré-adicional: fev/24 – abr/24 (3 meses)</span>
+    <span class="ptag p2">Adicional moderado: mai/24 – dez/24 (8 meses)</span>
+    <span class="ptag p3">Adicional agressivo: jan/25 – mai/26 (17 meses)</span>
+  </div>
+  <p style="font-size:12px;color:var(--muted)">3 meses de referência para evitar comparar com realidade operacional muito diferente de 2022-2023. O adicional surgiu em mai/24 (premium +3-9%) e consolidou em ~+10-15% a partir de jan/25.</p>
+
+  <h3>Indicadores — Base 100 (referência = fev-abr/2024) · Ratio Domingo / Média Seg-Sex</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Período</th><th>CSP/hora</th><th>GBV/hora</th><th>H. Demandadas</th><th>H. Atendidas</th><th>Fill Rate</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="ptag p1" style="display:inline-block">Pré (fev-abr/24)</span></td>
+          <td class="n">100.0</td><td class="n">100.0</td><td class="n">100.0</td><td class="n">100.0</td><td class="n">100.0</td>
+        </tr>
+        <tr>
+          <td><span class="ptag p2" style="display:inline-block">Moderado (mai-dez/24)</span></td>
+          <td class="n" style="color:var(--green)">108.7</td>
+          <td class="n" style="color:var(--green)">105.8</td>
+          <td class="n" style="color:var(--red)">184.7</td>
+          <td class="n" style="color:var(--yellow)">159.2</td>
+          <td class="n" style="color:var(--red)">87.4</td>
+        </tr>
+        <tr>
+          <td><span class="ptag p3" style="display:inline-block">Agressivo (jan/25+)</span></td>
+          <td class="n" style="color:var(--green)">109.4</td>
+          <td class="n" style="color:var(--green)">111.6</td>
+          <td class="n" style="color:var(--yellow)">105.2</td>
+          <td class="n" style="color:var(--yellow)">97.4</td>
+          <td class="n" style="color:var(--yellow)">94.2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">Ratios indexados em base 100 no período pré. Valores &gt;100 = domingo melhorou vs dia útil. Valores &lt;100 = domingo piorou.</p>
+
+  <div class="ins yellow">
+    <div class="ins-title">O adicional aumentou CSP (+9%) mas a demanda cresceu 85% acima do pré</div>
+    <p>No período moderado a demanda de domingo cresceu <strong>84.7%</strong> acima do período pré — enquanto a oferta (h. atendidas) cresceu apenas <strong>59.2%</strong>. Fill caiu 12.6pp em base 100. No agressivo a demanda normalizou (~105) e o fill se recuperou parcialmente para 94.2 — ainda abaixo do pré.</p>
+  </div>
+  <div class="ins green">
+    <div class="ins-title">Conclusão (não definitiva): adicional amorteceu, não reverteu</div>
+    <p>O CSP/hora de domingo subiu de ratio 1.03x para 1.13x vs dia útil. Sem esse aumento a queda de fill teria sido provavelmente maior. DiD confirma efeito estimado de <strong>-6.8pp vs outros dias</strong> — sem o adicional a queda seria maior. <strong>Limitação:</strong> adicional foi uniforme para todo Brasil sem variação entre cidades, então não temos experimento controlado puro.</p>
+  </div>
+</div>
+
+<!-- ══ S3: PERFIL HELPPER ══ -->
+<div class="sec-wrap" id="s3">
+  <div class="sec-header"><span class="sec-num">03</span><h2>Perfil do Helpper no Domingo</h2></div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px"><strong style="color:var(--text)">3.886 helppers elegíveis</strong> — ativos antes de mar/26 com mínimo 4 atendimentos anteriores e pelo menos 1 atendimento no período (churn excluído). Período: <strong style="color:var(--text)">mar–mai/26</strong>. 14 domingos únicos.</p>
+
+  <h3>Distribuição por Perfil — Domingo vs Quarta-feira</h3>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+      <span><strong style="color:var(--text)">Consistente</strong> — trabalhou em mais de 60% dos domingos do período</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:#4f46e5;flex-shrink:0"></div>
+      <span><strong style="color:var(--text)">Moderado</strong> — trabalhou em 20% a 59% dos domingos</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--yellow);flex-shrink:0"></div>
+      <span><strong style="color:var(--text)">Esporádico</strong> — trabalhou em 1% a 19% dos domingos</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
+      <span><strong style="color:var(--text)">Nunca</strong> — não trabalhou nenhum domingo no período (mas trabalhou em outros dias)</span>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <p style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">DOMINGO</p>
+      <div class="bars">
+        <div class="bar-row"><div class="bar-lbl">Consistente</div><div class="bar-track"><div class="bar-fill c-g" style="width:10.8%"></div></div><div class="bar-val" style="color:var(--green)">10.8% · 419 help.</div></div>
+        <div class="bar-row"><div class="bar-lbl">Moderado</div><div class="bar-track"><div class="bar-fill c-b" style="width:32.3%"></div></div><div class="bar-val" style="color:#4f46e5">32.3% · 1.254 help.</div></div>
+        <div class="bar-row"><div class="bar-lbl">Esporádico</div><div class="bar-track"><div class="bar-fill c-y" style="width:29.4%"></div></div><div class="bar-val" style="color:var(--yellow)">29.4% · 1.142 help.</div></div>
+        <div class="bar-row"><div class="bar-lbl">Nunca</div><div class="bar-track"><div class="bar-fill c-r" style="width:27.6%"></div></div><div class="bar-val" style="color:var(--red)">27.6% · 1.071 help.</div></div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">QUARTA-FEIRA (referência)</p>
+      <div class="bars">
+        <div class="bar-row"><div class="bar-lbl">Consistente</div><div class="bar-track"><div class="bar-fill c-g" style="width:22.3%"></div></div><div class="bar-val" style="color:var(--green)">22.3% · 866 help.</div></div>
+        <div class="bar-row"><div class="bar-lbl">Moderado</div><div class="bar-track"><div class="bar-fill c-b" style="width:26.8%"></div></div><div class="bar-val" style="color:#4f46e5">26.8% · 1.043 help.</div></div>
+        <div class="bar-row"><div class="bar-lbl">Esporádico</div><div class="bar-track"><div class="bar-fill c-y" style="width:22.4%"></div></div><div class="bar-val" style="color:var(--yellow)">22.4% · 869 help.</div></div>
+        <div class="bar-row"><div class="bar-lbl">Nunca</div><div class="bar-track"><div class="bar-fill c-r" style="width:28.5%"></div></div><div class="bar-val" style="color:var(--red)">28.5% · 1.108 help.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:14px">
+    <div class="ins" style="margin:0">
+      <div class="ins-title">O "nunca" é igual em todos os dias (~27-28%)</div>
+      <p>Não é específico do domingo — é engajamento geral baixo. Pode ser alvo em clusters onde a recusa ao domingo é explícita, como BH.</p>
+    </div>
+    <div class="ins red" style="margin:0">
+      <div class="ins-title">Consistente no domingo é metade da quarta</div>
+      <p>866 consistentes na quarta vs <strong>419 no domingo</strong>. Falta núcleo comprometido com o domingo como rotina.</p>
+    </div>
+  </div>
+
+  <h3>Perfil por Cluster — Domingo vs Quarta-feira</h3>
+  <div class="tbl">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">Cluster</th>
+          <th colspan="4" style="text-align:center;border-left:1px solid var(--border)">Domingo</th>
+          <th colspan="2" style="text-align:center;border-left:1px solid var(--border)">Quarta (ref.)</th>
+          <th rowspan="2" style="border-left:1px solid var(--border)">Δ Consistente</th>
+          <th rowspan="2">Δ Nunca</th>
+        </tr>
+        <tr>
+          <th style="border-left:1px solid var(--border)">Consist.</th><th>Moder.</th><th>Espor.</th><th>Nunca</th>
+          <th style="border-left:1px solid var(--border)">Consist.</th><th>Nunca</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Nordeste/CO</td><td class="n">8.6%</td><td class="n">30.5%</td><td class="n">36.8%</td><td class="n">24.1%</td><td class="n">20.7%</td><td class="n">24.1%</td><td><span class="bdg bdg-y">-12.1pp</span></td><td><span class="bdg bdg-y">~0</span></td></tr>
+        <tr><td>RJ</td><td class="n">11.3%</td><td class="n">34.2%</td><td class="n">35.3%</td><td class="n" style="color:var(--green)">19.2%</td><td class="n">21.4%</td><td class="n">25.8%</td><td><span class="bdg bdg-y">-10.1pp</span></td><td><span class="bdg bdg-g">-6.6pp</span></td></tr>
+        <tr><td>SP - Capital</td><td class="n">13.3%</td><td class="n">35.5%</td><td class="n">26.3%</td><td class="n">25.0%</td><td class="n">25.5%</td><td class="n">24.6%</td><td><span class="bdg bdg-r">-12.2pp</span></td><td><span class="bdg bdg-y">~0</span></td></tr>
+        <tr><td>SP - Interior</td><td class="n">8.9%</td><td class="n">28.7%</td><td class="n">30.4%</td><td class="n">32.1%</td><td class="n">18.8%</td><td class="n">35.1%</td><td><span class="bdg bdg-r">-9.9pp</span></td><td><span class="bdg bdg-g">-3pp</span></td></tr>
+        <tr style="background:rgba(232,0,28,.03)"><td><strong>Sudeste (MG/ES)</strong></td><td class="n" style="color:var(--red)"><strong>4.4%</strong></td><td class="n">20.8%</td><td class="n">28.3%</td><td class="n" style="color:var(--red)"><strong>46.5%</strong></td><td class="n">18.9%</td><td class="n">30.2%</td><td><span class="bdg bdg-r">-14.5pp</span></td><td><span class="bdg bdg-r">+16.3pp</span></td></tr>
+        <tr><td>Sul</td><td class="n">6.5%</td><td class="n">38.9%</td><td class="n">27.8%</td><td class="n">26.9%</td><td class="n">26.9%</td><td class="n">24.1%</td><td><span class="bdg bdg-r">-20.4pp</span></td><td><span class="bdg bdg-y">+2.8pp</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ins red">
+    <div class="ins-title">Sudeste é o único cluster onde a queda de consistência vira recusa total</div>
+    <p>Em todos os outros clusters o "nunca" de domingo é similar ou menor que na quarta. No Sudeste o "nunca" sobe <strong>+16.3pp</strong> vs quarta — de 30.2% para 46.5%. Em BH especificamente: <strong>52.3% nunca foi ao domingo</strong>. A queda de consistência não migra para esporádico — ela migra para recusa. Isso distingue BH de SP ou RJ.</p>
+  </div>
+</div>
+
+<!-- ══ S4: SÍNTESE ══ -->
+<div class="sec-wrap" id="s4">
+  <div class="sec-header"><span class="sec-num">04</span><h2>Síntese do Diagnóstico</h2></div>
+
+  <div class="tl">
+    <div class="tl-item">
+      <div class="tl-dot on">1</div>
+      <div class="tl-content">
+        <div class="tl-period">Achado estrutural</div>
+        <div class="tl-title">O problema é de hábito, não apenas de preço marginal</div>
+        <div class="tl-desc">O CSP/hora de domingo já é <strong>19% maior</strong> que o de dias úteis. O fill puro é <strong>8.5pp menor</strong>. O "nunca domingo" é ~27% do pool — mesma proporção de todos os outros dias. O gap está na ausência de helppers <em>comprometidos</em> com o domingo: só 10.8% são consistentes vs 22.3% na quarta.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot on">2</div>
+      <div class="tl-content">
+        <div class="tl-period">Achado histórico</div>
+        <div class="tl-title">O adicional amorteceu a queda — mas a demanda cresceu mais rápido</div>
+        <div class="tl-desc">No período moderado a demanda de domingo cresceu <strong>+84.7%</strong> acima do pré enquanto a oferta cresceu apenas <strong>+59.2%</strong>. O adicional evitou colapso maior (DiD: -6.8pp sem ele). No período agressivo a demanda normalizou e o fill se recuperou parcialmente — mas segue 5.8pp abaixo do pré.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot on">3</div>
+      <div class="tl-content">
+        <div class="tl-period">Achado regional</div>
+        <div class="tl-title">Sudeste (BH) é o único cluster com recusa explícita</div>
+        <div class="tl-desc">46.5% nunca trabalhou domingo — vs 19.2% no RJ. Em BH: <strong>52.3% nunca</strong>. Único cluster onde a queda de consistência se converte em "nunca" (+16.3pp), não em esporádico. Fill puro de 67.3% com CSP/hora de R$16,72 — o pool existe mas não converte com o adicional atual.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot on">4</div>
+      <div class="tl-content">
+        <div class="tl-period">Proposta</div>
+        <div class="tl-title">Campanha de meta escalonada em BH + Campinas como piloto</div>
+        <div class="tl-desc">231 helppers elegíveis com 53-58% nunca. Meta escalonada: <strong>R$90</strong> (2 dom), <strong>R$135</strong> (3 dom), <strong>R$180</strong> (4 dom). Budget estimado: R$3.200/mês. Objetivo: confirmar se o comportamento se move antes de escalar. RJ como grupo controle — perfil saudável, sem intervenção.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concl">
+    <div class="eyebrow">Recomendações</div>
+    <h2 style="margin-bottom:6px">Próximos passos priorizados</h2>
+    <div class="rec-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="rec-card">
+        <div class="rec-p" style="color:var(--red)">● Alta prioridade</div>
+        <div class="rec-title">Campanha de meta — BH + Campinas</div>
+        <div class="rec-desc">Meta escalonada de domingos trabalhados com bônus crescente (R$90 / R$135 / R$180). Budget ~R$3.200/mês coberto pela receita incremental estimada. Objetivo: testar se comportamento se move. Duração: 2 meses. RJ como grupo controle.</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-p" style="color:var(--red)">● Alta prioridade</div>
+        <div class="rec-title">Teste de elasticidade — SP Capital</div>
+        <div class="rec-desc">Aumento de +5pp no adicional de domingo em SP Capital em paralelo ao piloto comportamental de BH. Fill crítico (72%) com alto volume (~3.400h demandadas/semana) garante poder estatístico. Mede se preço move fill onde o pool já existe.</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-p" style="color:var(--yellow)">● Média prioridade</div>
+        <div class="rec-title">Auditoria de cadastro</div>
+        <div class="rec-desc">Franca, Marília e Lagoa Santa com fill_dom = 0% e centenas de horas demandadas. Limpar denominador de clientes que não abrem domingo melhora a métrica sem custo operacional.</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-p" style="color:var(--purple)">● Próximo passo</div>
+        <div class="rec-title">Experimento de preço — BH (fase 2)</div>
+        <div class="rec-desc">Após o piloto comportamental, avaliar aumento do adicional de 15% para 20-25% em BH e Contagem. Único cluster com evidência clara de recusa explícita — preço pode ser a alavanca complementar ao hábito.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S5: SIMULADOR ══ -->
+<div class="sec-wrap" id="s5">
+  <div class="sec-header"><span class="sec-num">05</span><h2>Simulador — Custo CSP vs Ganho de Fill</h2></div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:6px">Referência: <strong style="color:var(--text)">março/26 — fill puro</strong>. Fill base 72.9%, 57.886h demandadas, receita/hora R$12,46, GBV/hora R$27,25. O adicional CSP reduz a receita/hora; o Δfill aumenta o volume. Breakeven quando os dois efeitos se cancelam.</p>
+
+  <div class="sim-wrap">
+    <div class="sim-top">
+      <div class="sim-sliders">
+        <div class="sl-group">
+          <div class="sl-label">Adicional CSP Domingo</div>
+          <div class="sl-row"><input type="range" id="sCSP" min="0" max="30" step="1" value="10"><span class="sl-val" id="vCSP">10%</span></div>
+          <div class="sl-range"><span>0%</span><span>30%</span></div>
+        </div>
+        <div class="sl-group">
+          <div class="sl-label">Δ Fill Rate Simulado</div>
+          <div class="sl-row"><input type="range" id="sFill" min="0" max="20" step="0.5" value="5"><span class="sl-val" id="vFill">+5.0pp</span></div>
+          <div class="sl-range"><span>0pp</span><span>+20pp</span></div>
+        </div>
+        <div class="be-box">
+          <div class="be-label">Fill para Breakeven</div>
+          <div class="be-val" id="beFill">—</div>
+          <div class="be-sub">Com <span id="beCSPtxt">10%</span> de adicional, precisa de <span id="beDelta">—</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="sim-results">
+          <div class="sr-card"><div class="sr-label">Fill simulado</div><div class="sr-val neu" id="rFill">—</div></div>
+          <div class="sr-card"><div class="sr-label">H. atendidas</div><div class="sr-val" id="rHoras">—</div></div>
+          <div class="sr-card"><div class="sr-label">Receita/hora</div><div class="sr-val" id="rRecH">—</div></div>
+          <div class="sr-card"><div class="sr-label">Receita total</div><div class="sr-val" id="rRecT">—</div></div>
+          <div class="sr-card"><div class="sr-label">Δ Receita</div><div class="sr-val" id="rDelta">—</div></div>
+          <div class="sr-card"><div class="sr-label">Δ GBV potencial</div><div class="sr-val" id="rGBV">—</div></div>
+        </div>
+      </div>
+    </div>
+    <canvas id="simCanvas" height="280"></canvas>
+    <div style="margin-top:18px">
+      <p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Pivot Δ Receita (R$k) · <span style="color:var(--green)">verde=ganho</span> · <span style="color:var(--red)">vermelho=perda</span> · <span style="color:var(--purple)">roxo≈breakeven</span></p>
+      <div style="overflow-x:auto"><table class="ptbl" id="pivotT"></table></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function goTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+const navItems=document.querySelectorAll('.nav-item');
+const secs=document.querySelectorAll('.sec-wrap');
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){navItems.forEach(n=>n.classList.remove('active'));const i=[...secs].indexOf(x.target);if(i>=0&&navItems[i])navItems[i].classList.add('active');}});},{threshold:0.25});
+secs.forEach(s=>obs.observe(s));
+
+// SIMULATOR
+const H_DEM=57886,H_AT_BASE=42179,FILL_BASE=H_AT_BASE/H_DEM,REC_HORA=12.46,GBV_HORA=27.25;
+const REC_BASE=H_AT_BASE*REC_HORA;
+const CSP_LEVELS=[0,5,10,15,20,25,30];
+const FILL_RANGE=Array.from({length:41},(_,i)=>i*0.5);
+const PIVOT_FILLS=[0,2,4,6,8,10,12,15,20];
+const COLORS={0:'#94a3b8',5:'#6b7280',10:'#6b3fa0',15:'#e8001c',20:'#dc2626',25:'#991b1b',30:'#7f1d1d'};
+
+function sim(c,d){const fn=FILL_BASE+d/100,ha=H_DEM*fn,rh=REC_HORA*(1-c/100),rt=ha*rh;return{fn,ha,rh,rt,dr:rt-REC_BASE,dg:(ha-H_AT_BASE)*GBV_HORA};}
+function beFill(c){const f=FILL_BASE/(1-c/100);return f>1?null:f;}
+const fmt=(n,p='R$')=>{const s=n<0?'-':n>0?'+':'';return`${s}${p}${Math.abs(n).toLocaleString('pt-BR',{maximumFractionDigits:0})}`;}
+
+function draw(cSel,fSel){
+  const cv=document.getElementById('simCanvas');
+  const W=cv.offsetWidth||800,H=280;
+  cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
+  const P={t:18,r:44,b:42,l:72};const CW=W-P.l-P.r,CH=H-P.t-P.b;
+  const all=CSP_LEVELS.flatMap(c=>FILL_RANGE.map(d=>sim(c,d).dr));
+  const yMin=Math.min(...all)*1.05,yMax=Math.max(...all)*1.05;
+  const xS=d=>P.l+(d/20)*CW,yS=v=>P.t+CH-((v-yMin)/(yMax-yMin))*CH,y0=yS(0);
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(0,0,W,H,10);ctx.fill();
+  ctx.strokeStyle='#c4c4d4';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(P.l,y0);ctx.lineTo(W-P.r,y0);ctx.stroke();ctx.setLineDash([]);
+  for(let i=0;i<=5;i++){
+    const v=yMin+(yMax-yMin)*(i/5),y=yS(v);
+    ctx.strokeStyle='#e2e2ea';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(W-P.r,y);ctx.stroke();
+    ctx.fillStyle='#9ca3af';ctx.font='10px DM Mono';ctx.textAlign='right';
+    ctx.fillText((v>=0?'+':'')+Math.round(v/1000)+'k',P.l-6,y+3);
+  }
+  [0,5,10,15,20].forEach(d=>{
+    const x=xS(d);ctx.strokeStyle='#e2e2ea';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,P.t);ctx.lineTo(x,H-P.b);ctx.stroke();
+    ctx.fillStyle='#9ca3af';ctx.font='10px DM Mono';ctx.textAlign='center';ctx.fillText('+'+d+'pp',x,H-P.b+14);
+  });
+  CSP_LEVELS.forEach(c=>{
+    const isSel=c===cSel;
+    ctx.strokeStyle=COLORS[c];ctx.lineWidth=isSel?2.5:1;ctx.globalAlpha=isSel?1:.28;
+    ctx.beginPath();FILL_RANGE.forEach((d,i)=>{const x=xS(d),y=yS(sim(c,d).dr);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();ctx.globalAlpha=1;
+    if(isSel){ctx.fillStyle=COLORS[c];ctx.font='bold 10px DM Mono';ctx.textAlign='left';ctx.fillText(c+'%',W-P.r+4,yS(sim(c,20).dr)+3);}
+  });
+  ctx.strokeStyle='#6b3fa0';ctx.lineWidth=1.5;ctx.setLineDash([6,3]);
+  ctx.beginPath();let s=false;
+  CSP_LEVELS.forEach(c=>{const f=beFill(c);if(!f)return;const dp=(f-FILL_BASE)*100;if(dp<0||dp>20)return;const x=xS(dp);s?ctx.lineTo(x,y0):(ctx.moveTo(x,y0),s=true);});
+  ctx.stroke();ctx.setLineDash([]);
+  const r=sim(cSel,fSel),sx=xS(fSel),sy=yS(r.dr);
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx,sy,7,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#e8001c';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(sx,sy,7,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(232,0,28,.2)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(sx,P.t);ctx.lineTo(sx,H-P.b);ctx.moveTo(P.l,sy);ctx.lineTo(W-P.r,sy);ctx.stroke();ctx.setLineDash([]);
+}
+
+function buildPivot(cSel,fSel){
+  const t=document.getElementById('pivotT');
+  let h='<thead><tr><th>CSP↓ Fill→</th>';
+  PIVOT_FILLS.forEach(d=>h+=`<th>+${d}pp</th>`);
+  h+='</tr></thead><tbody>';
+  CSP_LEVELS.forEach(c=>{
+    h+=`<tr><td>${c}%</td>`;
+    PIVOT_FILLS.forEach(d=>{
+      const{dr}=sim(c,d);
+      const isSel=c===cSel&&Math.abs(d-fSel)<1.1;
+      const base=isSel?'ch ':'';
+      const cls=Math.abs(dr)<1500?'cz':dr>0?'cp':'cn';
+      h+=`<td class="${base}${cls}">${dr>=0?'+':''}${Math.round(dr/1000)}k</td>`;
+    });
+    h+='</tr>';
+  });
+  t.innerHTML=h+'</tbody>';
+}
+
+function updateSim(){
+  const csp=+document.getElementById('sCSP').value;
+  const fill=+document.getElementById('sFill').value;
+  document.getElementById('vCSP').textContent=csp+'%';
+  document.getElementById('vFill').textContent=`+${fill.toFixed(1)}pp`;
+  const r=sim(csp,fill);
+  document.getElementById('rFill').textContent=(r.fn*100).toFixed(1)+'%';
+  document.getElementById('rHoras').textContent=Math.round(r.ha).toLocaleString('pt-BR')+'h';
+  document.getElementById('rRecH').textContent='R$'+r.rh.toFixed(2);
+  document.getElementById('rRecT').textContent='R$'+Math.round(r.rt).toLocaleString('pt-BR');
+  const dEl=document.getElementById('rDelta');dEl.textContent=fmt(r.dr);dEl.className='sr-val '+(r.dr>0?'pos':r.dr<0?'neg':'neu');
+  const gEl=document.getElementById('rGBV');gEl.textContent=fmt(r.dg);gEl.className='sr-val '+(r.dg>0?'pos':r.dg<0?'neg':'neu');
+  const f=beFill(csp);
+  document.getElementById('beCSPtxt').textContent=csp+'%';
+  if(f){const dp=(f-FILL_BASE)*100;document.getElementById('beFill').textContent=(f*100).toFixed(1)+'%';document.getElementById('beDelta').textContent='+'+dp.toFixed(1)+'pp';}
+  else{document.getElementById('beFill').textContent='Inatingível';document.getElementById('beDelta').textContent='—';}
+  draw(csp,fill);buildPivot(csp,fill);
+}
+document.getElementById('sCSP').addEventListener('input',updateSim);
+document.getElementById('sFill').addEventListener('input',updateSim);
+window.addEventListener('resize',updateSim);
+updateSim();
+</script>
+</body>
+</html>
